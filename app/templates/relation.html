@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<a href="{{ url_for('profile',name=monkey.name)}}" class="btn btn-default">Go back to profile</a> 
+<div class="row">
+	<div class="panel panel-default">
+		<div class="panel-heading">Friends</div>
+		<div class="panel-body">
+			{% for friend in friends %}
+			<div class="col-md-2" id="friend_{{friend.id}}">
+				<ul class="list-group" >
+					<li class="list-group-item">{{ friend.name }}</li>
+					<li class="list-group-item">{{ friend.email }}</li>
+					<li class="list-group-item">{{ friend.bestFriend }}</li>
+					<li class="list-group-item">{{ friend.age }}</li>
+					<li class="list-group-item text-center">
+						<a href="{{url_for('removefriend', 
+						monkey_name=monkey.name,friend_name=friend.name)}}" 
+						class="btn btn-danger">Unfriend</a>
+						{% if monkey.has_best_friend() %}
+						  {% if monkey.bestFriend.id == friend.id %}
+							<a href="{{url_for('delete_best_friend', 
+							monkey_name=monkey.name)}}" 
+						class="btn btn-danger">remove best friend</a>
+						  {% endif %}
+						{% else %}
+						<a href="{{url_for('add_best_friend', 
+						monkey_name=monkey.name,friend_name=friend.name)}}" 
+						class="btn btn-success">make best friend</a>
+						{% endif %}
+					</li>
+				</ul>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+	
+
+</div>
+<div class="row">
+	<div class="panel panel-default">
+		<div class="panel-heading">Friend Suggestion</div>
+		<div class="panel-body">
+			{% for notFriend in notFriends %}
+			<div class="col-md-2"  id="notfriend_{{notFriend.id}}">
+				<ul class="list-group">
+					<li class="list-group-item">{{ notFriend.name }}</li>
+					<li class="list-group-item">{{ notFriend.email }}</li>
+					<li class="list-group-item">{{ notFriend.age }}</li>
+					<li class="list-group-item text-center">
+						<a href="{{url_for('addfriend', 
+						monkey_name=monkey.name,friend_name=notFriend.name)}}" class="btn btn-success">add friend</a>
+					</li>
+				</ul>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endblock %}
