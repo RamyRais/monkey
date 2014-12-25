@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for
 from app import app, db
 from app.forms import RegistrationForm, EditForm
-from app.models import Monkey
+from app.models import Monkey, friendship
 from config import MONKEYS_PER_PAGE
 
 @app.route('/')
@@ -61,3 +61,44 @@ def edit_profile(name=""):
         form.email.data = monkey.email
         form.age.data = monkey.age
     return render_template('edit.html', form=form)
+    
+@app.route('/profile/<name>/relations')
+def show_relations(name=""):
+    monkey = Monkey.query.filter_by(name=name).first()
+    if monkey is None:
+        return redirect(url_for('index'))
+    friends = monkey.friends
+    notFriends = monkey.not_friends()
+    monkeys = Monkey.query.filter(Monkey.id!=monkey.id)
+    notfriend = list(set(monkeys)-set(friends))
+    return render_template('relation.html', monkey=monkey,
+                           friends=friends,notFriends=notfriend)
+
+@app.route('/removefriend/<monkeyName>/<friendName>')
+def removefriend(monkeyName,friendName):
+    monkey = Monkey.query.filter_by(name=monkeyName).first()
+    friend = Monkey.query.filter_by(name=friendName).first()
+    monkey.remove_friend(friend)
+    db.session.add(monkey)
+    db.session.add(friend)
+    db.session.commit()
+    return redirect(url_for('show_relations',name=monkeyName))
+
+@app.route('/addfriend/<monkeyName>/<friendName>')
+def addfriend(monkeyName,friendName):
+    monkey = Monkey.query.filter_by(name=monkeyName).first()
+    friend = Monkey.query.filter_by(name=friendName).first()
+    monkey.add_friend(friend)
+    db.session.add(monkey)
+    db.session.add(friend)
+    db.session.commit()
+    return redirect(url_for('show_relations',name=monkeyName))
+
+@app.route('/delete/<name>')
+def delete(name):
+    monkey = Monkey.query.filter_by(name=name).first()
+    for friend in list(monkey.friends):
+        monkey.remove_friend(friend)
+    db.session.delete(monkey)
+    db.session.commit()
+    return redirect(url_for('index'))

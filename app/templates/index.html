@@ -12,12 +12,15 @@
 		{% for monkey in monkeys.items %}
 			<tr>
 				<td>{{ monkey.name }}</td>
-				<td>{{ monkey.email }}</td>
-				<td>{{ monkey.age }}</td>
+				<td>{% if monkey.bestFriend %}
+						{{monkey.bestFriend.name}}
+				    {% else %}
+						{{ monkey.name}} doesn't have a best friend
+					{% endif %}
+				</td>
+				<td>{{ monkey.friends|length }}</td>
 				<td>
 					<a href="{{ url_for('profile', name=monkey.name)}}" class="btn btn-info">view profile</a>
-					<a href='#' class="btn btn-warning">Edit profile</a>
-					<a href='#' class="btn btn-danger">Delete profile</a>
 				</td>
 			</tr>
 		{% endfor %}
