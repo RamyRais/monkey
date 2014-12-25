@@ -223,10 +223,9 @@ class TestCase(unittest.TestCase):
         assert "ramy1" in rv.data
         assert "ramy2" in rv.data
         assert "ramy3" in rv.data
-        assert "<td>2</td>" in rv.data
-        assert "ramy1 doesn't have a best friend" in rv.data
-        assert "ramy2 doesn't have a best friend" in rv.data
-        assert "ramy3 doesn't have a best friend" in rv.data
+        assert "None" in rv.data
+        assert "None" in rv.data
+        assert "None" in rv.data
 
 
 if __name__ == '__main__':
