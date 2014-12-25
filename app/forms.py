@@ -1,7 +1,7 @@
 from flask.ext.wtf import Form
 from wtforms import StringField, IntegerField
 from wtforms.validators import Email, DataRequired, Length, NumberRange, \
-                               ValidationError
+                               ValidationError, Regexp
 from app.models import Monkey
 
 def unique_name(form, field):
@@ -14,7 +14,8 @@ def unique_email(form, field):
 
 class RegistrationForm(Form):
     name = StringField('Name', validators=[DataRequired(),
-                       Length(min=3, max=64), unique_name])
+                       Length(min=3, max=64), unique_name,
+                       Regexp("^[A-Za-z0-9 ]+$")])
     email = StringField('Email', validators=[Email(), unique_email])
     age = IntegerField('Age', validators=[DataRequired(),
                        NumberRange(min=13, max=150)])
