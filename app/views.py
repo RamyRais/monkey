@@ -1,14 +1,27 @@
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, request
 from app import app, db
 from app.forms import RegistrationForm, EditForm
-from app.models import Monkey
+from app.models import Monkey, friendship
 from config import MONKEYS_PER_PAGE
+from sqlalchemy.orm import aliased
+from sqlalchemy.sql import func
+from sqlalchemy import desc
+import webhelpers.paginate as paginate
 
-@app.route('/')
-@app.route('/index')
-@app.route('/index/<int:page>')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
+@app.route('/index/<int:page>', methods=['GET', 'POST'])
 def index(page=1):
-    monkeys = Monkey.query.paginate(page, MONKEYS_PER_PAGE, False)
+    sort_by = 'name'
+    if request.method == 'POST':
+        sort_by = request.form['sort_by']    
+    a1 = aliased(Monkey)
+    a2 = aliased(Monkey)
+    monkeys = db.session.query(a1.name.label('name'),func.count(a1.name).label(
+        'number_friend'),a2.name.label('best_friend')).outerjoin(a2,a1.best_friend ==
+        a2.id).outerjoin(friendship,a1.id == friendship.c.monkey_id).group_by(
+        a1.id).order_by(sort_by).all()
+    monkeys = paginate.Page(monkeys,page,MONKEYS_PER_PAGE)
     return render_template("index.html", title='home', monkeys=monkeys)
 
 @app.route('/addmonkey', methods=['GET', 'POST'])
