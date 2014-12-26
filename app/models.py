@@ -19,8 +19,9 @@ class Monkey(db.Model):
 
     def add_friend(self, monkey):
         if (type(monkey) == Monkey) and not self.is_friend_with(monkey):
+            if self != monkey:
+                monkey.friends.append(self)
             self.friends.append(monkey)
-            monkey.friends.append(self)
             return self
 
     def remove_friend(self, monkey):

@@ -40,6 +40,7 @@ def add_monkey():
     if form.validate_on_submit():
         monkey = Monkey()
         form.populate_obj(monkey)
+        monkey.add_friend(monkey)
         db.session.add(monkey)
         db.session.commit()
         return redirect(url_for('index'))
@@ -91,6 +92,7 @@ def show_relations(name=""):
     if monkey is None:
         return redirect(url_for('index'))
     friends = monkey.friends
+    friends.remove(monkey)
     not_friends = monkey.not_friends()
     return render_template('relation.html', monkey=monkey,
                            friends=friends, notFriends=not_friends)
