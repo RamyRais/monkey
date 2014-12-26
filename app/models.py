@@ -28,8 +28,9 @@ class Monkey(db.Model):
         if (type(monkey) == Monkey) and self.is_friend_with(monkey):
             if self.bestFriend == monkey:
                 self.remove_best_friend()
+            if self!= monkey:
+                monkey.friends.remove(self)
             self.friends.remove(monkey)
-            monkey.friends.remove(self)
             return self
 
     def is_friend_with(self, monkey):

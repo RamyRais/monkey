@@ -15,10 +15,9 @@ def index(page=1):
     sort_by = "name"
     if request.method == 'POST':
         sort_by = request.form['sort_by']    
-    a1 = aliased(Monkey)
-    a2 = aliased(Monkey)
-    
     # This query don't work on postgres on heroku it work fine with MySql
+    #a1 = aliased(Monkey)
+    #a2 = aliased(Monkey)
     #monkeys = db.session.query(a1.name.label('name'),func.count(a1.name).label(
     #    'number_friend'),a2.name.label('best_friend')).outerjoin(a2,
     #    a1.best_friend == a2.id).outerjoin(friendship,a1.id ==
