@@ -12,15 +12,25 @@ import webhelpers.paginate as paginate
 @app.route('/index', methods=['GET', 'POST'])
 @app.route('/index/<int:page>', methods=['GET', 'POST'])
 def index(page=1):
-    sort_by = 'name'
+    sort_by = "name"
     if request.method == 'POST':
         sort_by = request.form['sort_by']    
     a1 = aliased(Monkey)
     a2 = aliased(Monkey)
-    monkeys = db.session.query(a1.name.label('name'),func.count(a1.name).label(
-        'number_friend'),a2.name.label('best_friend')).outerjoin(a2,a1.best_friend ==
-        a2.id).outerjoin(friendship,a1.id == friendship.c.monkey_id).group_by(
-        a1.id).order_by(sort_by).all()
+    
+    # This query don't work on postgres on heroku it work fine with MySql
+    #monkeys = db.session.query(a1.name.label('name'),func.count(a1.name).label(
+    #    'number_friend'),a2.name.label('best_friend')).outerjoin(a2,
+    #    a1.best_friend == a2.id).outerjoin(friendship,a1.id ==
+    #    friendship.c.monkey_id).group_by(a1.id).order_by(sort_by).all()
+    
+    query = "SELECT f1.name AS name, a2.name AS best_friend, f1.number_friend \
+            FROM (SELECT a1.name ,a1.best_friend, COUNT(a1.name) AS \
+            number_friend FROM monkey AS a1  LEFT OUTER JOIN friendship \
+            ON a1.id = friendship.monkey_id GROUP BY a1.id) AS f1 \
+            LEFT OUTER JOIN monkey AS a2 ON f1.best_friend = a2.id \
+            ORDER BY {0}".format(sort_by)
+    monkeys = db.session.execute(query).fetchall()
     monkeys = paginate.Page(monkeys,page,MONKEYS_PER_PAGE)
     return render_template("index.html", title='home', monkeys=monkeys)
 
